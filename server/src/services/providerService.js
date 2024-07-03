@@ -2,8 +2,8 @@ const Provider = require("../models/provider");
 
 class ProviderService { 
     
-    async createProvider(name, coutry, market_share, renewable_energy_percentage, yearly_revenue){
-        const newProvider = new Provider({name, coutry, market_share, renewable_energy_percentage, yearly_revenue});
+    async createProvider(name, country, market_share, renewable_energy_percentage, yearly_revenue){
+        const newProvider = new Provider({name, country, market_share, renewable_energy_percentage, yearly_revenue});
         return await newProvider.save();
     }
     
