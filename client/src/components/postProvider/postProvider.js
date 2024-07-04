@@ -24,11 +24,28 @@ const PostProvider = () => {
         }));
     };
 
-    const validateForm = () => {
+    const fetchProviders = async () => {
+        try {
+            const response = await fetch("http://localhost:5000/api/provider");
+            const providers = await response.json();
+            return providers;
+        } catch (error) {
+            console.error("Error fetching providers:", error);
+            return [];
+        }
+    };
+
+    const validateForm = async() => {
         const newErrors = {};
 
         if (!formData.name) {
             newErrors.name = "Name is required.";
+        } else {
+            const providers = await fetchProviders();
+            const nameExists = providers.some(provider => provider.name === formData.name);
+            if (nameExists) {
+                newErrors.name = "Provider with this name already exists.";
+            }
         }
 
         if (!formData.country) {
@@ -49,7 +66,7 @@ const PostProvider = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const newErrors = validateForm();
+        const newErrors = await validateForm();
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
