@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import "./postProvider.css";
 import { countries } from "../resources/countries";
@@ -13,6 +13,7 @@ const PostProvider = () => {
         yearly_revenue: 0
     });
 
+    const [errors, setErrors] = useState({});
     const navigate = useNavigate();
 
     const handleInputChange = (event) => {
@@ -23,15 +24,38 @@ const PostProvider = () => {
         }));
     };
 
+    const validateForm = () => {
+        const newErrors = {};
+
+        if (!formData.name) {
+            newErrors.name = "Name is required.";
+        }
+
+        if (!formData.country) {
+            newErrors.country = "Country is required.";
+        }
+
+        if (formData.renewable_energy_percentage < 0 || formData.renewable_energy_percentage > 100) {
+            newErrors.renewable_energy_percentage = "Renewable energy percentage must be between 0 and 100.";
+        }
+
+        if (formData.renewable_energy_percentage === 0) {
+            newErrors.renewable_energy_percentage = "Renewable energy percentage is required.";
+        }
+
+        return newErrors;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (formData.renewable_energy_percentage < 0 || formData.renewable_energy_percentage > 100) {
-            alert("Renewable energy percentage must be between 0 and 100.");
+        const newErrors = validateForm();
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
             return;
         }
 
-        console.log("Form Data Submitted: ", formData); // Debug: log the form data being submitted
+        console.log("Form Data Submitted: ", formData);
 
         try {
             const response = await fetch("http://localhost:5000/api/provider", {
@@ -66,7 +90,9 @@ const PostProvider = () => {
                         placeholder="Enter name"
                         value={formData.name}
                         onChange={handleInputChange}
+                        isInvalid={!!errors.name}
                     />
+                    {errors.name && <Alert variant="danger">{errors.name}</Alert>}
                 </Form.Group>
 
                 <Form.Group controlId="formBasicCountry">
@@ -76,6 +102,7 @@ const PostProvider = () => {
                         aria-label="Select Country"
                         value={formData.country}
                         onChange={handleInputChange}
+                        isInvalid={!!errors.country}
                     >
                         <option value="">Select Country</option>
                         {countries.map((item, i) => (
@@ -84,6 +111,7 @@ const PostProvider = () => {
                             </option>
                         ))}
                     </Form.Select>
+                    {errors.country && <Alert variant="danger">{errors.country}</Alert>}
                 </Form.Group>
 
                 <Form.Group controlId="formBasicMarketShare">
@@ -105,7 +133,9 @@ const PostProvider = () => {
                         placeholder="Enter renewable energy percentage"
                         value={formData.renewable_energy_percentage}
                         onChange={handleInputChange}
+                        isInvalid={!!errors.renewable_energy_percentage}
                     />
+                    {errors.renewable_energy_percentage && <Alert variant="danger">{errors.renewable_energy_percentage}</Alert>}
                 </Form.Group>   
 
                 <Form.Group controlId="formBasicYearlyRevenue">
